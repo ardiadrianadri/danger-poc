@@ -2,7 +2,7 @@
 import {message, danger, fail} from "danger"
 
 const owner = process.env.GITHUB_OWNER || 'ardiadrianadri';
-const repoName = process.env.GITHUB_REPO || 'super-heroe-react';
+const repoName = process.env.GITHUB_REPO || 'danger-poc';
 const fails = []
 const validBranchName = /^(feature|bugfix|refactor|hotfix)\/.*$/g;
 const validGithubIssue = /issue #[0-9]{1,5}/gm;
@@ -39,11 +39,12 @@ I'm going to inspect your work to make sure your RP has what it needs to have ..
   fails.push('The pull request must have, at least, one reviewer');
 } */
 
+console.log('Body: ', danger.github.pr.body);
 if (danger.github.pr.body.length === 0) {
   fails.push('This pull request deserves some description to be clear, Don\'t you think?');
 }
 
-if (validGithubIssue.test(danger.github.pr.body)) {
+if (!validGithubIssue.test(danger.github.pr.body)) {
   fails.push('This pull request is not related with any github issue. Are you sure that you are working in something that worth?');
 }
 
