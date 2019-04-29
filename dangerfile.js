@@ -15,10 +15,13 @@ function finalJudgment (fails) {
 
   let msg = ''
   if(leng > 0) {
-    msg += `This pull request is not worth for a superior race:`;
-    for (error of fails) {
-      msg += `    - ${error}`
-    }
+    msg = fails.reduce((current, next, index) => {
+      if (index === (leng - 1)) {
+        return `${current} ${next}`;
+      } else {
+        return `${current} ${next},`;
+      }
+    }, 'This pull request is not worth for a superior race: ')
     fail(msg)
   } else {
     message(`Congrats this pull request is a proud for you and all your race`)
