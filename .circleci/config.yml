@@ -29,6 +29,10 @@ jobs:
       - run: 
           name: install
           command: npm install
+
+      - run: 
+          name: danger
+          command: npm run danger
       
       - save_cache:
           paths:
