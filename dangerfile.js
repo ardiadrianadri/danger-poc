@@ -15,11 +15,9 @@ function finalJudgment (fails) {
 
   let msg = ''
   if(leng > 0) {
-    msg += `This pull request is not worth for a superior race:
-    `;
+    msg += `This pull request is not worth for a superior race:`;
     for (error of fails) {
-      msg += `- ${error}
-      `
+      msg += `    - ${error}`
     }
     fail(msg)
   } else {
