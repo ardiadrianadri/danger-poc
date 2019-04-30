@@ -3,6 +3,11 @@ import logo from './logo.svg';
 import Home from './home';
 import './App.css';
 
+/**
+ * Main function for the app
+ * @function App
+ * @return {JSX} JSX template
+ */
 function App() {
   return (
     <div className="App">
