@@ -7,7 +7,7 @@ const fails = []
 const validBranchName = /^(feature|bugfix|refactor|hotfix)\/.*$/g;
 const validGithubIssue = /issue #[0-9]{1,5}/gm;
 const validJSFile = /\.js$/g;
-const validComent = /\/\*\*.*\*\*\/\n(async )?function/s;
+const validComent = /\/\*\*.*(function)?.*\*\/\n(async )?function/s;
 const leng = danger.github.commits.length;
 const lastCommit = danger.github.commits[leng-1];
 const lengModfiedFiles = danger.git.modified_files.length;
@@ -47,9 +47,6 @@ async function checkLiveDocumentation (modifiedFiles) {
     if ((file.indexOf('dangerfile') < 0) && (file.match(validJSFile))) {
       diffFile = await danger.git.diffForFile(file);
       currentContent = diffFile.after;
-      console.log('Current content: ', currentContent);
-      console.log('Is there a funciton? ', currentContent.indexOf('function'));
-      console.log('Is there a box content? ', currentContent.match(validComent));
 
       if ((currentContent.indexOf('function') > -1) && (!currentContent.match(validComent))) {
         fails.push(`Hey! The file ${file} has a function but it doesn't have a live documentation. It is not admisible`);
@@ -83,7 +80,6 @@ I'm going to inspect your work to make sure your RP has what it needs to have ..
   fails.push('The pull request must have, at least, one reviewer');
 } */
 
-console.log('Body: ', danger.github.pr.body);
 if (danger.github.pr.body.length === 0) {
   fails.push('This pull request deserves some description to be clear, Don\'t you think?');
 }
