@@ -18,18 +18,14 @@ function postFails() {
             let result;
 
             if (index === leng) {
-                result = `
-                  <li>${prev}${current}</li>
-                </ul>
-                `;
+                result = `${prev}${current}. `;
             } else {
-                result = `<li>${prev}${current}<li>`;
+                result = `${prev}${current}, `;
             }
 
             return result;
         }, `
-        Esta PR es una vergüenza, una deshonra. Te enumero tus fallos:
-        <ul>
+        Esta PR es una vergüenza, una deshonra. Te enumero tus fallos: 
         `);
 
         fail(failMsg);
