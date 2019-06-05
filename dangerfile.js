@@ -1,12 +1,10 @@
 import {message, danger, fail} from 'danger';
 
-const GITHUB_OWNER = process.env.GITHUB_OWNER;
-const GITHUB_REPO = process.env.GITHUB_REPO;
+const GITHUB_OWNER = process.env.GITHUB_OWNER || 'ardiadrianadri';
+const GITHUB_REPO = process.env.GITHUB_REPO || 'danger-poc';
 
 const fails = [];
 const validBranchName = /^(feature|bugfix|refactor|hotfix)\/.*$/g;
-const commitsNumber = danger.github.commits.length;
-const lastCommit = danger.github.commits[commitsNumber - 1];
 
 function postFails() {
     const leng = fails.length;
@@ -66,7 +64,18 @@ function checkBranch(branch) {
     fails.push(`
     Pero bueno... ¿No te han dicho que las ramas deben empezar por feature, bugfix, refactor o hotfix? ¿Así como voy a saber como diablos quieres que
     integre el desarrollo? No me ayudas, la verdad es que no ayudas...
-    `)
+    `);
+  }
+}
+
+function checkChangelog() {
+  const filesChanged = danger.git.modified_files;
+
+  if (filesChanged.filter(file => file === 'CHANGE_LOG.md').length === 0) {
+    fails.push(`
+     Aiiinnnsss... ¿Cuantas veces lo he dicho. Actualiza el changelog, actualiza el change log, actualiza el change log. Si no es por mi.. es por
+     negocio que no si no es por el Change log no puede saber que has arreglado... y no quieres enfadar a negocio ¡¿VERDAD?!
+    `);
   }
 }
 
@@ -79,7 +88,7 @@ de lo contrario... lo sabré
 
 
 danger.github.api.request(
-  `/repos/${GITHUB_OWNER}/commits/${lastCommit.sha}/branches-where-head`,
+  `/repos/${GITHUB_OWNER}/${GITHUB_REPO}/branches`,
   {
     headers: {
       'accept': 'application/vnd.github.groot-preview+json'
@@ -88,7 +97,8 @@ danger.github.api.request(
 ).then(response => {
   const branches = response.data;
   const lastBranch = branches[branches.length - 1];
-  checkBranch(lastBranch);
+  checkBranch(lastBranch.name);
+  checkChangelog();
   checkReviers();
   checkBody();
   checkIssueRelated();
