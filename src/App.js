@@ -1,15 +1,19 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { HelloWorld } from './hello-world';
 
+/**
+ * Main component of the app
+ * @function
+ * @returns JSX template
+ */
 function App() {
   return (
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
+         <HelloWorld></HelloWorld>
         <a
           className="App-link"
           href="https://reactjs.org"
