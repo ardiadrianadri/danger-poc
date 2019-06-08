@@ -4,7 +4,6 @@ const GITHUB_OWNER = process.env.GITHUB_OWNER || 'ardiadrianadri';
 const GITHUB_REPO = process.env.GITHUB_REPO || 'danger-poc';
 
 const fails = [];
-const validBranchName = /^(feature|bugfix|refactor|hotfix)\/.*$/g;
 
 function postFails() {
     const leng = fails.length;
@@ -59,13 +58,23 @@ function checkIssueRelated() {
     }
 }
 
-function checkBranch(branch) {
-  if(!validBranchName.test(branch.name)) {
+function checkBranch(branchName) {
+  const validBranchName = /^(feature|bugfix|refactor|hotfix)\/.*$/g;
+
+  if(!validBranchName.test(branchName)) {
     fails.push(`
     Pero bueno... ¿No te han dicho que las ramas deben empezar por feature, bugfix, refactor o hotfix? ¿Así como voy a saber como diablos quieres que
     integre el desarrollo? No me ayudas, la verdad es que no ayudas...
     `);
   }
+}
+
+function getBranchName(branches) {
+  const lengCommits = danger.github.commits.length;
+  const lastSha = danger.github.commits[lengCommits - 1].sha;
+  const currentBranch = branches.filter(branch => branch.commit.sha === lastSha);
+
+  return currentBranch[0].name;
 }
 
 function checkChangelog() {
@@ -95,9 +104,8 @@ danger.github.api.request(
     }
   }
 ).then(response => {
-  const branches = response.data;
-  const lastBranch = branches[branches.length - 1];
-  checkBranch(lastBranch.name);
+  const branchName = getBranchName(response.data)
+  checkBranch(branchName);
   checkChangelog();
   checkReviers();
   checkBody();
