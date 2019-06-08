@@ -10,8 +10,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "danger": "danger ci",
-    "danger:pr": "DANGER_GITHUB_API_TOKEN=1cbdf227af9838d2b0889dc835a3dede88e16f5c danger pr https://github.com/ardiadrianadri/danger-poc/pull/12"
+    "danger": "danger ci"
   },
   "eslintConfig": {
     "extends": "react-app"
