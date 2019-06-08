@@ -79,7 +79,6 @@ function getBranchName(branches) {
 
 function checkChangelog(filesChanged) {
 
-  console.log(filesChanged);
   if (filesChanged.filter(file => file === 'CHANGE_LOG.md').length === 0) {
     fails.push(`
      Aiiinnnsss... ¿Cuantas veces lo he dicho. Actualiza el changelog, actualiza el change log, actualiza el change log. Si no es por mi.. es por
@@ -99,6 +98,8 @@ async function checkLiveDocumentation(filesChanges) {
     if ((file !== 'dangerfile.js') && (file.match(validJSFile))) {
       diffFile = await danger.git.diffForFile(file);
       currentContent = diffFile.after;
+
+      console.log('Current content: ', currentContent);
 
       if ((currentContent.indexOf('function') > -1) && (!currentContent.match(validComent))) {
         fails.push(`Oye, te has descuidado la documentación viva en el fichero ${file}`);
@@ -135,9 +136,11 @@ danger.github.api.request(
     }
   )
   }).then(response => {
-  console.log(response.data.files);
   let filesChanged = response.data.files.map(file => file.filename)
   checkChangelog(filesChanged);
+  return checkLiveDocumentation(filesChanged);
+})
+.then(() => {
   checkReviers();
   checkBody();
   checkIssueRelated();
