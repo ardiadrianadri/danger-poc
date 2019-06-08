@@ -88,7 +88,7 @@ function checkChangelog(filesChanged) {
 }
 
 async function checkLiveDocumentation(filesChanges) {
-  const validComent = /\/\*\*.*(function)?.*\*\/\n(async )?function/s;
+  const validComent = /\/\*\*.*(function)?.*\*\/\n(export )?(async )?function/s;
   const validJSFile = /\.js$/g;
 
   let diffFile
@@ -98,8 +98,6 @@ async function checkLiveDocumentation(filesChanges) {
     if ((file !== 'dangerfile.js') && (file.match(validJSFile))) {
       diffFile = await danger.git.diffForFile(file);
       currentContent = diffFile.after;
-
-      console.log('Current content: ', currentContent);
 
       if ((currentContent.indexOf('function') > -1) && (!currentContent.match(validComent))) {
         fails.push(`Oye, te has descuidado la documentación viva en el fichero ${file}`);
