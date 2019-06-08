@@ -2,3 +2,4 @@
 
 ## (no release)
 - Add danger script
+- fix dangerfile bug

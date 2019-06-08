@@ -4,6 +4,8 @@ const GITHUB_OWNER = process.env.GITHUB_OWNER || 'ardiadrianadri';
 const GITHUB_REPO = process.env.GITHUB_REPO || 'danger-poc';
 
 const fails = [];
+const lengCommits = danger.github.commits.length;
+const lastSha = danger.github.commits[lengCommits - 1].sha;
 
 function postFails() {
     const leng = fails.length;
@@ -70,16 +72,14 @@ function checkBranch(branchName) {
 }
 
 function getBranchName(branches) {
-  const lengCommits = danger.github.commits.length;
-  const lastSha = danger.github.commits[lengCommits - 1].sha;
   const currentBranch = branches.filter(branch => branch.commit.sha === lastSha);
 
   return currentBranch[0].name;
 }
 
-function checkChangelog() {
-  const filesChanged = danger.git.modified_files;
+function checkChangelog(filesChanged) {
 
+  console.log(filesChanged);
   if (filesChanged.filter(file => file === 'CHANGE_LOG.md').length === 0) {
     fails.push(`
      Aiiinnnsss... ¿Cuantas veces lo he dicho. Actualiza el changelog, actualiza el change log, actualiza el change log. Si no es por mi.. es por
@@ -106,7 +106,19 @@ danger.github.api.request(
 ).then(response => {
   const branchName = getBranchName(response.data)
   checkBranch(branchName);
-  checkChangelog();
+
+  return danger.github.api.request(
+    `/repos/${GITHUB_OWNER}/${GITHUB_REPO}/commits/${lastSha}`,
+    {
+      headers: {
+        'accept': 'application/vnd.github.groot-preview+json'
+      }
+    }
+  )
+  }).then(response => {
+  console.log(response.data.files);
+  let filesChanged = response.data.files.map(file => file.filename)
+  checkChangelog(filesChanged);
   checkReviers();
   checkBody();
   checkIssueRelated();
