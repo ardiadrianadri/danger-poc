@@ -88,6 +88,25 @@ function checkChangelog(filesChanged) {
   }
 }
 
+async function checkLiveDocumentation(filesChanges) {
+  const validComent = /\/\*\*.*(function)?.*\*\/\n(async )?function/s;
+  const validJSFile = /\.js$/g;
+
+  let diffFile
+  let currentContent
+
+  for(const file of filesChanges) {
+    if ((file !== 'dangerfile.js') && (file.match(validJSFile))) {
+      diffFile = await danger.git.diffForFile(file);
+      currentContent = diffFile.after;
+
+      if ((currentContent.indexOf('function') > -1) && (!currentContent.match(validComent))) {
+        fails.push(`Oye, te has descuidado la documentación viva en el fichero ${file}`);
+      }
+    }
+  }
+}
+
 message(`
 Permite que me presente por si no nos conocemos. Soy DevVox3000; un bot del futuro que ha venido
 para asegurarse de que el codigo que subes al repositorio es digno de la raza de seres superiores
