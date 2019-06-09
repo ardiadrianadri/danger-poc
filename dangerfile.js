@@ -25,7 +25,15 @@ function checkIssue() {
   if (!regExpIssue.test(pullRequestDescription)) {
     fails.push('No has asociado tu PR a su respectiva issue');
   }
-  
+}
+
+function checkChangelog() {
+  const modifiedFiles = danger.git.modified_files.concat(danger.git.created_files);
+  const changeLog = modifiedFiles.filter(file => file === 'CHANGE_LOG.md');
+
+  if (changeLog.length === 0) {
+    fails.push(`Te has olvidado de actualizar el changelog`);
+  }
 }
 
 function checkFails () {
@@ -50,6 +58,7 @@ Hola, permiteme que me presente; soy DevVox 3000 un bot del futuro que ha venido
 para asegurarse de que tu código es digno de una raza superior.
 `);
 
+checkChangelog();
 checkReviewers();
 checkBody();
 checkIssue();
