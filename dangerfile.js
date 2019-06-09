@@ -58,6 +58,26 @@ async function checkBranchName() {
   }
 }
 
+async function checkLiveDocumentation() {
+  const validComent = /\/\*\*.*(function)?.*\*\/\n(export )?(async )?function/s;
+  const validJSFile = /\.js$/g;
+
+  let modifiedFiles = danger.git.created_files.concat(danger.git.modified_files);
+  let diffFile;
+  let currentFile;
+
+  modifiedFiles = modifiedFiles.filter(file => validJSFile.test(file) && file !== 'dangerfiler.js');
+
+  for (const file of modifiedFiles) {
+    diffFile = await danger.git.diffForFile(file);
+    currentFile = diffFile.after;
+
+    if ((currentFile.indexOf('function') > -1) && (!validComent.test(currentFile))) {
+      fails.push(`Te has olvidado de añadir la documentación viva en el fichero ${file}`);
+    }
+  }
+}
+
 function checkFails () {
   const leng = fails.length;
   let msgFail = '';
@@ -81,6 +101,9 @@ para asegurarse de que tu código es digno de una raza superior.
 `);
 
 checkBranchName()
+.then(() => {
+  return checkLiveDocumentation();
+})
 .then(() => {
   checkChangelog();
   checkReviewers();
