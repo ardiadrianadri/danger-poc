@@ -77,9 +77,9 @@ function getBranchName(branches) {
   return currentBranch[0].name;
 }
 
-function checkChangelog(filesChanged) {
+function checkChangelog() {
+  const filesChanged = danger.git.modified_files.concat(danger.git.created_files);
 
-  console.log(filesChanged);
   if (filesChanged.filter(file => file === 'CHANGE_LOG.md').length === 0) {
     fails.push(`
      Aiiinnnsss... ¿Cuantas veces lo he dicho. Actualiza el changelog, actualiza el change log, actualiza el change log. Si no es por mi.. es por
@@ -106,22 +106,10 @@ danger.github.api.request(
 ).then(response => {
   const branchName = getBranchName(response.data)
   checkBranch(branchName);
-
-  return danger.github.api.request(
-    `/repos/${GITHUB_OWNER}/${GITHUB_REPO}/commits/${lastSha}`,
-    {
-      headers: {
-        'accept': 'application/vnd.github.groot-preview+json'
-      }
-    }
-  )
-  }).then(response => {
-  console.log(response.data.files);
-  let filesChanged = response.data.files.map(file => file.filename)
-  checkChangelog(filesChanged);
+  checkChangelog();
   checkReviers();
   checkBody();
   checkIssueRelated();
   postFails();
-})
+  })
 .catch(error => { throw error; });
