@@ -66,7 +66,7 @@ async function checkLiveDocumentation() {
   let diffFile;
   let currentFile;
 
-  modifiedFiles = modifiedFiles.filter(file => validJSFile.test(file) && file !== 'dangerfiler.js');
+  modifiedFiles = modifiedFiles.filter(file => validJSFile.test(file) && file !== 'dangerfile.js');
 
   for (const file of modifiedFiles) {
     diffFile = await danger.git.diffForFile(file);
