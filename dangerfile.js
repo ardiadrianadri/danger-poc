@@ -1,6 +1,8 @@
 import { message, fail, danger } from 'danger';
 
 const fails = [];
+const GITHUB_OWNER = process.env.GITHUB_OWNER || 'ardiadrianadri';
+const GITHUB_REPO = process.env.GITHUB_REPO || 'danger-poc';
 
 function checkReviewers () {
   let numReviewers = danger.github.requested_reviewers.users.length;
@@ -36,6 +38,26 @@ function checkChangelog() {
   }
 }
 
+async function checkBranchName() {
+  const validBranchName = /^(feature|bugfix|refactor|hotfix)\/.*$/g;
+  const commitsLeng = danger.github.commits.length;
+  const lastSha = danger.github.commits[commitsLeng - 1].sha;
+  const githubResponse = await danger.github.api.request(
+    `/repos/${GITHUB_OWNER}/${GITHUB_REPO}/branches`,
+    {
+      headers: {
+        'accept': 'application/vnd.github.groot-preview+json'
+      }
+    }
+  );
+
+  const branchOur = githubResponse.data.filter(branch => branch.commit.sha === lastSha)[0];
+
+  if (!validBranchName.test(branchOur.name)) {
+    fails.push(`Las ramas deben empezar por feature, bugfix, refactor o hotfix y la tuya no lo hace`);
+  }
+}
+
 function checkFails () {
   const leng = fails.length;
   let msgFail = '';
@@ -58,8 +80,11 @@ Hola, permiteme que me presente; soy DevVox 3000 un bot del futuro que ha venido
 para asegurarse de que tu código es digno de una raza superior.
 `);
 
-checkChangelog();
-checkReviewers();
-checkBody();
-checkIssue();
-checkFails();
+checkBranchName()
+.then(() => {
+  checkChangelog();
+  checkReviewers();
+  checkBody();
+  checkIssue();
+  checkFails();
+});
