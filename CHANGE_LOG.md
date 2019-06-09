@@ -5,3 +5,5 @@
 - fix dangerfile bug
 - Add check for live documentation 
 - Update de version of nodejs used in circleci
+- Improve change log check
+- Improve live documentation check

@@ -77,7 +77,8 @@ function getBranchName(branches) {
   return currentBranch[0].name;
 }
 
-function checkChangelog(filesChanged) {
+function checkChangelog() {
+  const filesChanged = danger.git.modified_files.concat(danger.git.created_files);
 
   if (filesChanged.filter(file => file === 'CHANGE_LOG.md').length === 0) {
     fails.push(`
@@ -87,9 +88,10 @@ function checkChangelog(filesChanged) {
   }
 }
 
-async function checkLiveDocumentation(filesChanges) {
+async function checkLiveDocumentation() {
   const validComent = /\/\*\*.*(function)?.*\*\/\n(export )?(async )?function/s;
   const validJSFile = /\.js$/g;
+  const filesChanges = danger.git.created_files.concat(danger.git.modified_files);
 
   let diffFile
   let currentContent
@@ -124,24 +126,13 @@ danger.github.api.request(
 ).then(response => {
   const branchName = getBranchName(response.data)
   checkBranch(branchName);
-
-  return danger.github.api.request(
-    `/repos/${GITHUB_OWNER}/${GITHUB_REPO}/commits/${lastSha}`,
-    {
-      headers: {
-        'accept': 'application/vnd.github.groot-preview+json'
-      }
-    }
-  )
-  }).then(response => {
-  let filesChanged = response.data.files.map(file => file.filename)
-  checkChangelog(filesChanged);
-  return checkLiveDocumentation(filesChanged);
+  return checkLiveDocumentation();
 })
 .then(() => {
+  checkChangelog();
   checkReviers();
   checkBody();
   checkIssueRelated();
   postFails();
-})
+  })
 .catch(error => { throw error; });
