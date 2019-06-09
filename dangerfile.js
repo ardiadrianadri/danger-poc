@@ -1,6 +1,9 @@
 import { message, fail, danger } from 'danger';
 
 const fails = [];
+const GITHUB_OWNER = process.env.GITHUB_OWNER || 'ardiadrianadri';
+const GITHUB_REPO = process.env.GITHUB_REPO || 'danger-poc';
+ 
 
 function checkReviewers () {
   let numReviewers = danger.github.requested_reviewers.users.length;
@@ -25,7 +28,16 @@ function checkIssue() {
   if (!regExpIssue.test(pullRequestDescription)) {
     fails.push('No has asociado tu PR a su respectiva issue');
   }
-  
+}
+
+function checkChangeLog () {
+  const modifiedFiles = danger.git.modified_files;
+  console.log('Modified files: ', modifiedFiles);
+  let changeLog = modifiedFiles.filter(file => file === 'CHANGE_LOG.md');
+
+  if (changeLog.length === 0) {
+    fails.push('Te has olvidado de actualizar el change log');
+  }
 }
 
 function checkFails () {
@@ -50,6 +62,8 @@ Hola, permiteme que me presente; soy DevVox 3000 un bot del futuro que ha venido
 para asegurarse de que tu código es digno de una raza superior.
 `);
 
+
+checkChangeLog();
 checkReviewers();
 checkBody();
 checkIssue();
