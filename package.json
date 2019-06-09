@@ -11,7 +11,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "danger": "danger ci",
+    "danger:pr": "DANGER_GITHUB_API_TOKEN=dee4b74e304a6803f48a8227597b29c3318cf973 danger pr https://github.com/ardiadrianadri/danger-poc/pull/17"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -27,5 +29,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "danger": "^8.0.0"
   }
 }
