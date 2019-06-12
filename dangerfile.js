@@ -94,8 +94,32 @@ function checkBranchName(name) {
   }
 }
 
+async function checkLiveDocu() {
+  const validComent = /\/\*\*.*(function)?.*\*\/\n(export )?(async )?function/s;
+  const validJSFile = /\.js$/g;
+
+  let modifiedFiles = danger.git.modified_files.concat(
+    danger.git.created_files
+  );
+
+  modifiedFiles = modifiedFiles.filter(file => (validJSFile.test(file) && file !== 'dangerfile.js'));
+
+  for (const file of modifiedFiles) {
+    const diffFile = await danger.git.diffForFile(file);
+    const filePostPr = diffFile.after;
+
+    if (!validComent.test(filePostPr)) {
+      fails.push(`Te has olvidado de añadir los comentarios en el fichero ${file}`);
+    }
+  }
+}
+
 getBranch().then(nameBranch => {
   checkBranchName(nameBranch);
+
+  return checkLiveDocu();
+})
+.then(() => {
   checkChangelog();
   checkIssue();
   checkBody();
