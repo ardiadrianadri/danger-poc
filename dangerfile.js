@@ -1,6 +1,8 @@
-import { message, danger, fail } from 'danger';
+import { message, danger, fail } from "danger";
 
 const fails = [];
+const GITHUB_OWNER = process.env.GITHUB_OWNER || "ardiadrianadri";
+const GITHUB_REPO = process.env.GITHUB_REPO || "danger-poc";
 
 message(`
 Hola a todos soy DevVox 3000 un bot que ha resucitado de un pasado muy casposo y viene a asegurase de tu 
@@ -19,7 +21,7 @@ function checkFails() {
     `);
   } else {
     failMessage = fails.reduce(
-      (prev, current) => prev += current + ', ',
+      (prev, current) => (prev += current + ", "),
       `Que vergüenza, que horror, mira todas las pifias que has hecho: `
     );
 
@@ -27,11 +29,11 @@ function checkFails() {
   }
 }
 
-function checkReviewrs () {
+function checkReviewrs() {
   let contReviwers = danger.github.requested_reviewers.users.length;
 
   if (contReviwers === 0) {
-    fails.push('Necesitas al menos un reviewr');
+    fails.push("Necesitas al menos un reviewr");
   }
 }
 
@@ -48,21 +50,55 @@ function checkIssue() {
   const body = danger.github.pr.body;
 
   if (!validGithubIssue.test(body)) {
-    fails.push('Porfavor, indica que issue esta resolviendo con estos cambios');
+    fails.push("Porfavor, indica que issue esta resolviendo con estos cambios");
   }
 }
 
 function checkChangelog() {
-  const modifiedFiles = danger.git.modified_files.concat(danger.git.created_files);
-  const changeLog = modifiedFiles.filter(file => file === 'CHANGE_LOG.md')[0];
+  const modifiedFiles = danger.git.modified_files.concat(
+    danger.git.created_files
+  );
+  const changeLog = modifiedFiles.filter(file => file === "CHANGE_LOG.md")[0];
 
   if (!changeLog) {
-    fails.push('Te has olvidado de añadir el changelog');
+    fails.push("Te has olvidado de añadir el changelog");
   }
 }
 
-checkChangelog();
-checkIssue();
-checkBody();
-checkReviewrs();
-checkFails();
+async function getBranch() {
+  const lengCommits = danger.git.commits.length;
+  const lastCommit = danger.git.commits[lengCommits - 1];
+  const lastSha = lastCommit.sha;
+
+  const responseGithub = await danger.github.api.request(
+    `/repos/${GITHUB_OWNER}/${GITHUB_REPO}/branches`,
+    {
+      headers: {
+        accept: "application/vnd.github.groot-preview+json"
+      }
+    }
+  );
+
+  const listBranches = responseGithub.data;
+
+  return listBranches.filter(branch => branch.commit.sha === lastSha)[0].name;
+}
+
+function checkBranchName(name) {
+  const validBranchName = /^(feature|bugfix|refactor|hotfix)\/.*$/g;
+
+  if (!validBranchName.test(name)) {
+    fails.push(
+      "La rama tiene que empezar por feature, bugfix, refactor o hotfix"
+    );
+  }
+}
+
+getBranch().then(nameBranch => {
+  checkBranchName(nameBranch);
+  checkChangelog();
+  checkIssue();
+  checkBody();
+  checkReviewrs();
+  checkFails();
+});
