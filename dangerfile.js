@@ -52,7 +52,16 @@ function checkIssue() {
   }
 }
 
+function checkChangelog() {
+  const modifiedFiles = danger.git.modified_files.concat(danger.git.created_files);
+  const changeLog = modifiedFiles.filter(file => file === 'CHANGE_LOG.md')[0];
 
+  if (!changeLog) {
+    fails.push('Te has olvidado de añadir el changelog');
+  }
+}
+
+checkChangelog();
 checkIssue();
 checkBody();
 checkReviewrs();
