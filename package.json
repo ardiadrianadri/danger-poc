@@ -12,7 +12,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "danger": "danger ci"
+    "danger": "danger ci",
+    "danger:pr": "DANGER_GITHUB_API_TOKEN=217861f8e42560fb9352822ac2538139d1b57d53 danger pr https://github.com/ardiadrianadri/danger-poc/pull/22"
   },
   "eslintConfig": {
     "extends": "react-app"
