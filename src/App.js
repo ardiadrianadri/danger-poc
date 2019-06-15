@@ -3,6 +3,11 @@ import logo from './logo.svg';
 import { HelloWorld } from './hello-world';
 import './App.css';
 
+/**
+ * Main component
+ * @function
+ * @returns
+ */
 function App() {
   return (
     <div className="App">

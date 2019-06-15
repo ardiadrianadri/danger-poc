@@ -108,13 +108,17 @@ async function checkLiveDocu() {
     const changes = diffFile.after;
 
     if (!validComent.test(changes)) {
-      fail.push('Te has olvidado de incluir la docu en el fichero ' + file);
+      fails.push('Te has olvidado de incluir la docu en el fichero ' + file);
     }
   }
 }
 
 getCurrentBranch().then(branchName => {
   chechBranchName(branchName);
+
+  return checkLiveDocu();
+})
+.then(() => {
   checkChangelog();
   checkBody();
   checkIssue();
